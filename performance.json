@@ -1,48 +1,75 @@
-{
-  "commands": [
-    "renderer=$(if [ -n \"$(getprop ro.hardware.vulkan)\" ]; then echo \"vulkan\"; elif [ -n \"$(getprop ro.hardware.opengl)\" ]; then echo \"skiagl\"; else echo \"skiavk\"; fi)",
-    "display_info=$(dumpsys display)",
-    "fps=$(echo \"$display_info\" | grep -oE 'fps=[0-9.]+' | awk -F '=' '{printf \"%d\n\", $2+0}' | head -n 1)",
-    "setprop debug.egl.profiler 1",
-    "setprop debug.hwui.use_buffer_age true",
-    "settings put global animator_duration_scale 0.01",
-    "settings put global transition_animation_scale 0.01",
-    "settings put global window_animation_scale 0.01",
-    "setprop debug.hwui.renderer \"$renderer\"",
-    "cmd shortcut reset-throttling \"$MODULE_PKG\"",
-    "device_config delete game_overlay \"$MODULE_PKG\"",
-    "pm compile -m speed-profile --secondary-dex -f \"$MODULE_PKG\"",
-    "cmd package compile -m speed-profile -f \"$MODULE_PKG\" -r --secondary-dex",
-    "device_config put game_overlay \"$MODULE_PKG\" mode=2,renderer=\"$renderer\",downscaleFactor=0.7,fps=$fps",
-    "cmd package compile -m quicken -f \"$MODULE_PKG\"",
-    "settings put system touch.pressure.scale 0.001",
-    "settings put system touch.size.calibration geometric",
-    "settings put system touch.pressure.calibration amplitude",
-    "settings put system touch.size.scale 1",
-    "settings put system touch.distance.scale 0",
-    "am force-stop \"$MODULE_PKG\"",
-    "cmd activity kill-all",
-    "performance_mode=\"mode=enabled=true\"",
-    "setprop debug.egl.hw 0",
-    "setprop debug.sf.hw 0",
-    "setprop debug.sf.latch_unsignaled 1",
-    "cmd power set-fixed-performance-mode-enabled true \"$performance_mode\"",
-    "cmd power set-adaptive-power-saver-enabled false",
-    "cmd game set --mode performance --downscale 0.7 --fps \"$fps\" --user 0 \"$MODULE_PKG\"",
-    "device_config put game_overlay \"$MODULE_PKG\" mode=2,fps=\"$fps\",downscaleFactor=0.7",
-    "cmd device_config put game_overlay \"$MODULE_PKG\" mode=2,renderer=\"$renderer\",downscaleFactor=0.7,fps=\"$fps\"",
-    "cmd game mode 2 \"$MODULE_PKG\"",
-    "cmd thermalservice override-status 0",
-    "setprop debug.egl.swapinterval 0",
-    "setprop debug.sf.disable_client_composition_cache 1",
-    "setprop debug.gr.numframebuffers 5",
-    "setprop debug.gpu.rendering.framebuffer 2",
-    "setprop debug.composition.type gpu",
-    "setprop debug.sf.high_fps_early_gl_phase_offset_ns 8900000",
-    "setprop debug.sf.high_fps_early_phase_offset_ns 7500000",
-    "setprop debug.sf.high_fps_early_phase_offset_ns 6100000",
-    "setprop debug.sf.high_fps_early_gl_phase_offset_ns 650000",
-    "setprop debug.sf.high_fps_late_app_phase_offset_ns 100000",
-    "setprop debug.sf.high_fps_early_gl_phase_offset_ns 9000000"
+# Dapatkan renderer yang sesuai dengan hardware perangkat
+renderer=$(if [ -n "$(getprop ro.hardware.vulkan)" ]; then echo "vulkan"; elif [ -n "$(getprop ro.hardware.opengl)" ]; then echo "skiagl"; else echo "skiavk"; fi)
+
+# Dapatkan fps dari display info
+fps=$(dumpsys display | grep -oE 'fps=[0-9.]+' | awk -F '=' '{printf "%d\n", $2+0}' | head -n 1)
+
+# Inject hasil renderer dan fps ke dalam JSON
+echo "{
+  \"commands\": [
+    \"setprop debug.hwui.renderer '$renderer'\",
+    \"device_config put game_overlay '$MODULE_PKG' mode=2,renderer='$renderer',downscaleFactor=0.7,fps=$fps\",
+    \"cmd game set --mode performance --downscale 0.7 --fps $fps --user 0 '$MODULE_PKG'\",
+    \"cmd device_config put game_overlay '$MODULE_PKG' mode=2,renderer='$renderer',downscaleFactor=0.7,fps=$fps\"
   ]
-}
+}"
+
+# Langkah-langkah peningkatan performa
+setprop debug.egl.profiler 1
+setprop debug.hwui.use_buffer_age true
+settings put global animator_duration_scale 0.01
+settings put global transition_animation_scale 0.01
+settings put global window_animation_scale 0.01
+
+# Set renderer berdasarkan kondisi hardware
+setprop debug.hwui.renderer "$renderer"
+
+# Reset throttling dan konfigurasi aplikasi
+cmd shortcut reset-throttling "$MODULE_PKG"
+device_config delete game_overlay "$MODULE_PKG"
+pm compile -m speed-profile --secondary-dex -f "$MODULE_PKG"
+cmd package compile -m speed-profile -f "$MODULE_PKG" -r --secondary-dex
+
+# Konfigurasi mode overlay untuk game
+device_config put game_overlay "$MODULE_PKG" mode=2,renderer="$renderer",downscaleFactor=0.7,fps=$fps
+
+# Optimize sentuhan dan animasi untuk performa
+settings put system touch.pressure.scale 0.001
+settings put system touch.size.calibration geometric
+settings put system touch.pressure.calibration amplitude 
+settings put system touch.size.scale 1 
+settings put system touch.distance.scale 0
+
+# Hentikan dan bersihkan aplikasi untuk refresh performa
+am force-stop "$MODULE_PKG"
+cmd activity kill-all
+
+# Pengaturan mode performa
+performance_mode="mode=enabled=true"
+setprop debug.egl.hw 0
+setprop debug.sf.hw 0
+setprop debug.sf.latch_unsignaled 1
+cmd power set-fixed-performance-mode-enabled true "$performance_mode"
+cmd power set-adaptive-power-saver-enabled false
+
+# Set mode performa untuk game
+cmd game set --mode performance --downscale 0.7 --fps "$fps" --user 0 "$MODULE_PKG"
+device_config put game_overlay "$MODULE_PKG" mode=2,fps="$fps",downscaleFactor=0.7
+cmd device_config put game_overlay "$MODULE_PKG" mode=2,renderer="$renderer",downscaleFactor=0.7,fps="$fps"
+cmd game mode 2 "$MODULE_PKG"
+cmd thermalservice override-status 0
+
+# Pengaturan rendering dan frame untuk performa tinggi
+setprop debug.egl.swapinterval 0
+setprop debug.sf.disable_client_composition_cache 1
+setprop debug.gr.numframebuffers 5
+setprop debug.gpu.rendering.framebuffer 2
+setprop debug.composition.type gpu
+
+# Pengaturan lebih lanjut untuk FPS tinggi
+setprop debug.sf.high_fps_early_gl_phase_offset_ns 8900000
+setprop debug.sf.high_fps_early_phase_offset_ns 7500000
+setprop debug.sf.high_fps_early_phase_offset_ns 6100000
+setprop debug.sf.high_fps_early_gl_phase_offset_ns 650000
+setprop debug.sf.high_fps_late_app_phase_offset_ns 100000
+setprop debug.sf.high_fps_early_gl_phase_offset_ns 9000000
