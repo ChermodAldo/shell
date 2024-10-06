@@ -1,36 +1,98 @@
 {
   "commands": [
-    "if [ -n \"$(getprop ro.hardware.vulkan)\" ]; then renderer=\"vulkan\"; elif [ -n \"$(getprop ro.hardware.opengl)\" ]; then renderer=\"skiagl\"; else renderer=\"skiavk\"; fi",
-    "display_info=$(dumpsys display)",
-    "setprop debug.hwui.renderer \"$renderer\"",
-    "fps=$(echo \"$display_info\" | grep -oE 'fps=[0-9.]+' | awk -F '=' '{printf \"%d\\n\", $2+0}' | head -n 1)",
-    "apply_system_properties() { setprop debug.egl.profiler 1; setprop debug.hwui.use_buffer_age true; settings put global animator_duration_scale 0.01; settings put global transition_animation_scale 0.01; settings put global window_animation_scale 0.01; }",
-    "apply_Cmd2() { cmd shortcut reset-throttling \"$MODULE_PKG\"; device_config delete game_overlay \"$MODULE_PKG\"; }",
-    "optimizion() { pm compile -m speed-profile --secondary-dex -f \"$MODULE_PKG\"; cmd package compile -m speed-profile -f \"$MODULE_PKG\" -r --secondary-dex; device_config put game_overlay \"$MODULE_PKG\" mode=2,renderer=\"$renderer\",downscaleFactor=0.7,fps=$fps; cmd package compile -m quicken -f \"$MODULE_PKG\"; }",
-    "touch() { settings put system touch.pressure.scale 0.001; settings put system touch.size.calibration geometric; settings put system touch.pressure.calibration amplitude; settings put system touch.size.scale 1; settings put system touch.distance.scale 0; }",
-    "apply() { apply_Cmd2; touch; apply_system_properties; am force-stop \"$MODULE_PKG\"; cmd activity kill-all; }",
-    "performance_mode=\"mode=enabled=true\"",
-    "setprop debug.egl.hw 0",
-    "setprop debug.sf.hw 0",
-    "setprop debug.sf.latch_unsignaled 1",
-    "cmd power set-fixed-performance-mode-enabled true \"$performance_mode\"",
-    "cmd power set-adaptive-power-saver-enabled false",
-    "cmd game set --mode performance --downscale 0.7 --fps \"$fps\" --user 0 \"$MODULE_PKG\"",
-    "apply",
-    "device_config put game_overlay \"$MODULE_PKG\" mode=2,fps=\"$fps\",downscaleFactor=0.7",
-    "cmd device_config put game_overlay \"$MODULE_PKG\" mode=2,renderer=\"$renderer\",downscaleFactor=0.7,fps=\"$fps\"",
-    "cmd game mode 2 \"$MODULE_PKG\"",
-    "cmd thermalservice override-status 0",
-    "setprop debug.egl.swapinterval 0",
-    "setprop debug.sf.disable_client_composition_cache 1",
-    "setprop debug.gr.numframebuffers 5",
-    "setprop debug.gpu.rendering.framebuffer 2",
-    "setprop debug.composition.type gpu",
-    "setprop debug.sf.high_fps_early_gl_phase_offset_ns 8900000",
-    "setprop debug.sf.high_fps_early_phase_offset_ns 7500000",
-    "setprop debug.sf.high_fps_early_phase_offset_ns 6100000",
-    "setprop debug.sf.high_fps_early_gl_phase_offset_ns 650000",
-    "setprop debug.sf.high_fps_late_app_phase_offset_ns 100000",
-    "setprop debug.sf.high_fps_early_gl_phase_offset_ns 9000000"
+    {
+      "condition": "if [ -n \"$(getprop ro.hardware.vulkan)\" ]; then",
+      "command": "renderer=\"vulkan\""
+    },
+    {
+      "condition": "elif [ -n \"$(getprop ro.hardware.opengl)\" ]; then",
+      "command": "renderer=\"skiagl\""
+    },
+    {
+      "condition": "else",
+      "command": "renderer=\"skiavk\""
+    },
+    {
+      "command": "display_info=$(dumpsys display)"
+    },
+    {
+      "command": "setprop debug.hwui.renderer \"$renderer\""
+    },
+    {
+      "command": "fps=$(echo \"$display_info\" | grep -oE 'fps=[0-9.]+' | awk -F '=' '{printf \"%d\\n\", $2+0}' | head -n 1)"
+    },
+    {
+      "function": "apply_system_properties",
+      "commands": [
+        "setprop debug.egl.profiler 1",
+        "setprop debug.hwui.use_buffer_age true",
+        "settings put global animator_duration_scale 0.01",
+        "settings put global transition_animation_scale 0.01",
+        "settings put global window_animation_scale 0.01"
+      ]
+    },
+    {
+      "function": "apply_Cmd2",
+      "commands": [
+        "cmd shortcut reset-throttling \"$MODULE_PKG\"",
+        "device_config delete game_overlay \"$MODULE_PKG\""
+      ]
+    },
+    {
+      "function": "optimizion",
+      "commands": [
+        "pm compile -m speed-profile --secondary-dex -f \"$MODULE_PKG\"",
+        "cmd package compile -m speed-profile -f \"$MODULE_PKG\" -r --secondary-dex",
+        "device_config put game_overlay \"$MODULE_PKG\" mode=2,renderer=\"$renderer\",downscaleFactor=0.7,fps=$fps",
+        "cmd package compile -m quicken -f \"$MODULE_PKG\""
+      ]
+    },
+    {
+      "function": "touch",
+      "commands": [
+        "settings put system touch.pressure.scale 0.001",
+        "settings put system touch.size.calibration geometric",
+        "settings put system touch.pressure.calibration amplitude",
+        "settings put system touch.size.scale 1",
+        "settings put system touch.distance.scale 0"
+      ]
+    },
+    {
+      "function": "apply",
+      "commands": [
+        "apply_Cmd2",
+        "touch",
+        "apply_system_properties",
+        "am force-stop \"$MODULE_PKG\"",
+        "cmd activity kill-all"
+      ]
+    },
+    {
+      "performance_mode": "mode=enabled=true",
+      "commands": [
+        "setprop debug.egl.hw 0",
+        "setprop debug.sf.hw 0",
+        "setprop debug.sf.latch_unsignaled 1",
+        "cmd power set-fixed-performance-mode-enabled true \"$performance_mode\"",
+        "cmd power set-adaptive-power-saver-enabled false",
+        "cmd game set --mode performance --downscale 0.7 --fps \"$fps\" --user 0 \"$MODULE_PKG\"",
+        "apply",
+        "device_config put game_overlay \"$MODULE_PKG\" mode=2,fps=\"$fps\",downscaleFactor=0.7",
+        "cmd device_config put game_overlay \"$MODULE_PKG\" mode=2,renderer=\"$renderer\",downscaleFactor=0.7,fps=\"$fps\"",
+        "cmd game mode 2 \"$MODULE_PKG\"",
+        "cmd thermalservice override-status 0",
+        "setprop debug.egl.swapinterval 0",
+        "setprop debug.sf.disable_client_composition_cache 1",
+        "setprop debug.gr.numframebuffers 5",
+        "setprop debug.gpu.rendering.framebuffer 2",
+        "setprop debug.composition.type gpu",
+        "setprop debug.sf.high_fps_early_gl_phase_offset_ns 8900000",
+        "setprop debug.sf.high_fps_early_phase_offset_ns 7500000",
+        "setprop debug.sf.high_fps_early_phase_offset_ns 6100000",
+        "setprop debug.sf.high_fps_early_gl_phase_offset_ns 650000",
+        "setprop debug.sf.high_fps_late_app_phase_offset_ns 100000",
+        "setprop debug.sf.high_fps_early_gl_phase_offset_ns 9000000"
+      ]
+    }
   ]
-}
+        }
