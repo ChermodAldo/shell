@@ -5,7 +5,7 @@
     "settings put global animator_duration_scale 1",
     "for debug in $(getprop | grep -F '[debug.' | cut -f 2 -d '[' | cut -f 1 -d ']'); do setprop \"$debug\" \"\"; done",
     "cmd power set-fixed-performance-mode-enabled false mode=enabled=false",
-    "am force-stop ${AxConstant.MODULE_PKG}",
+    `am force-stop ${AxConstant.MODULE_PKG}`,
     "cmd package compile -m speed-profile -f ${AxConstant.MODULE_PKG} -r --secondary-dex",
     "cmd package compile -m quicken -f ${AxConstant.MODULE_PKG}",
     "cmd activity kill-all",
