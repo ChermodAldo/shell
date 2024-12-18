@@ -24,7 +24,7 @@
     "setprop debug.sf.latch_unsignaled 1",
     "cmd power set-fixed-performance-mode-enabled true mode=enabled=true",
     "cmd power set-adaptive-power-saver-enabled false",
-    "cmd game set --mode performance --downscale 0.7 --fps 90 --user 0 ${AxConstant.MODULE_PKG}",
+    "cmd game set --mode performance --downscale 0.7 --fps 90 --user 0 $MODULE_PKG",
     "device_config put game_overlay $MODULE_PKG mode=2,fps=90,downscaleFactor=0.7",
     "cmd device_config put game_overlay $MODULE_PKG mode=2,renderer=skiavk,downscaleFactor=0.7,fps=90",
     "cmd game mode 2 $MODULE_PKG",
