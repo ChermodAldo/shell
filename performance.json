@@ -5,7 +5,6 @@
     "settings put global animator_duration_scale 0.01",
     "settings put global transition_animation_scale 0.01",
     "settings put global window_animation_scale 0.01",
-    "setprop debug.hwui.renderer skiavk",
     "cmd shortcut reset-throttling $MODULE_PKG",
     "device_config delete game_overlay $MODULE_PKG",
     "pm compile -m speed-profile --secondary-dex -f $MODULE_PKG",
