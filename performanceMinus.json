@@ -16,7 +16,6 @@
     "settings put system touch.pressure.calibration amplitude",
     "settings put system touch.size.scale 1",
     "settings put system touch.distance.scale 0",
-    "setprop debug.hwui.renderer vulkan",
     "cmd shortcut reset-throttling $MODULE_PKG",
     "device_config delete game_overlay $MODULE_PKG",
     "pm compile -m speed-profile --secondary-dex -f $MODULE_PKG",
