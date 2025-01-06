@@ -28,6 +28,7 @@
     "setprop debug.sf.high_fps_early_phase_offset_ns 5600000",
     "setprop debug.sf.high_fps_early_gl_phase_offset_ns 600000",
     "setprop debug.sf.high_fps_late_app_phase_offset_ns 75000",
-    "setprop debug.sf.high_fps_early_gl_phase_offset_ns 8000000"
+    "setprop debug.sf.high_fps_early_gl_phase_offset_ns 8000000",
+    "settings put global low_power 1"
   ]
 }
