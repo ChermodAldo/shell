@@ -1,8 +1,8 @@
 {
   "commands": [
-"settings put global animator_duration_scale 0.01",
-"settings put global transition_animation_scale 0.01",
-"settings put global window_animation_scale 0.01",
+"settings put global animator_duration_scale 0.5",
+"settings put global transition_animation_scale 0.5",
+"settings put global window_animation_scale 0.5",
 "settings put system touch.pressure.scale 0.001",
 "settings put system touch.size.calibration geometric",
 "settings put system touch.pressure.calibration amplitude",
